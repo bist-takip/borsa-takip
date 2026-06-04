@@ -5,52 +5,59 @@
         body { font-family: sans-serif; display: flex; gap: 20px; padding: 20px; }
         .sol-panel { flex: 3; }
         .sag-panel { flex: 1; background: #f4f4f4; padding: 20px; border-radius: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        .up { color: green; }
-        .down { color: red; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
     </style>
 </head>
 <body>
 
     <div class="sol-panel">
         <h1>Borsa Canlı Takip</h1>
-        <div id="portfoy-ozet">Toplam Kar/Zarar: Henüz hesaplanmadı.</div>
-        <table>
+        <table id="borsa-tablo">
             <thead>
-                <tr><th>Hisse</th><th>Fiyat</th><th>Değişim (%)</th><th>İşlem</th></tr>
+                <tr><th>Hisse</th><th>Fiyat</th><th>İşlem</th></tr>
             </thead>
-            <tbody id="borsa-tablo">
-                <tr><td>ASELS</td><td id="fiyat-asels">65.20</td><td class="up">+1.2%</td><td><button onclick="portfoyeEkle('ASELS', 65.20)">Ekle</button></td></tr>
-                <tr><td>THYAO</td><td id="fiyat-thyao">310.50</td><td class="down">-0.5%</td><td><button onclick="portfoyeEkle('THYAO', 310.50)">Ekle</button></td></tr>
-            </tbody>
+            <tbody id="tablo-govde">
+                </tbody>
         </table>
     </div>
 
     <div class="sag-panel">
         <h3>Piyasa Verileri</h3>
-        <p>Gram Altın: <span id="altin">2450.00</span> TL</p>
-        <p>Bitcoin: <span id="btc">95000.00</span> USD</p>
+        <p>Gram Altın: <span id="altin">Yükleniyor...</span></p>
     </div>
 
     <script>
-        // Canlı Veri Simülasyonu: Fiyatları her 3 saniyede bir ufak oynatıyoruz
-        setInterval(() => {
-            let yeniAsels = (65.20 + (Math.random() - 0.5)).toFixed(2);
-            document.getElementById('fiyat-asels').innerText = yeniAsels;
-            document.getElementById('altin').innerText = (2450 + (Math.random() * 10)).toFixed(2);
-            document.getElementById('btc').innerText = (95000 + (Math.random() * 100)).toFixed(0);
-        }, 3000);
+        // Hisseler ve Sembolleri
+        let hisseler = [
+            { sembol: "ASELS", fiyat: 0 },
+            { sembol: "THYAO", fiyat: 0 },
+            { sembol: "GARAN", fiyat: 0 },
+            { sembol: "BIMAS", fiyat: 0 }
+        ];
 
-        function portfoyeEkle(hisse, fiyat) {
-            let lot = prompt(hisse + " için lot sayısını gir:");
-            let maliyet = prompt("Maliyet fiyatını gir:");
-            if (lot && maliyet) {
-                let karZarar = (fiyat - maliyet) * lot;
-                document.getElementById("portfoy-ozet").innerText = 
-                    hisse + " için Güncel Kâr/Zarar: " + karZarar.toFixed(2) + " TL";
-            }
+        // 1. ADIM: Alfabetik Sıralama
+        hisseler.sort((a, b) => a.sembol.localeCompare(b.sembol));
+
+        // 2. ADIM: Tabloya Yazdırma
+        function tabloyuGuncelle() {
+            let govde = document.getElementById("tablo-govde");
+            govde.innerHTML = "";
+            hisseler.forEach(h => {
+                govde.innerHTML += `<tr><td>${h.sembol}</td><td>${h.fiyat}</td><td><button>Ekle</button></td></tr>`;
+            });
         }
+
+        // 3. ADIM: Canlı Veri Simülasyonu (Gerçek API bağlamak için burayı güncelleyeceğiz)
+        function veriCek() {
+            hisseler.forEach(h => {
+                h.fiyat = (Math.random() * 100 + 50).toFixed(2);
+            });
+            tabloyuGuncelle();
+        }
+
+        setInterval(veriCek, 3000);
+        veriCek();
     </script>
 </body>
 </html>
