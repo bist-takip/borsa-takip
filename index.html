@@ -1,43 +1,54 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Borsa ve Portföy Takip</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f6f9; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        .up { color: green; font-weight: bold; }
-        .down { color: red; font-weight: bold; }
-        .add-btn { cursor: pointer; color: blue; text-decoration: underline; }
+        body { font-family: sans-serif; display: flex; gap: 20px; padding: 20px; }
+        .sol-panel { flex: 3; }
+        .sag-panel { flex: 1; background: #f4f4f4; padding: 20px; border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .up { color: green; }
+        .down { color: red; }
     </style>
 </head>
 <body>
-    <div class="container">
+
+    <div class="sol-panel">
         <h1>Borsa Canlı Takip</h1>
-        <div id="portfoy-ozeti" style="padding:10px; background:#e8f4fd; border-radius:8px; margin-bottom:15px;">
-            Toplam Kar/Zarar: Henüz hisse eklenmedi.
-        </div>
+        <div id="portfoy-ozet">Toplam Kar/Zarar: Henüz hesaplanmadı.</div>
         <table>
             <thead>
                 <tr><th>Hisse</th><th>Fiyat</th><th>Değişim (%)</th><th>İşlem</th></tr>
             </thead>
             <tbody id="borsa-tablo">
-                <!-- Burası canlı gelecek -->
-                <tr><td>ASELS</td><td>65.20</td><td class="up">+1.2%</td><td class="add-btn" onclick="portfoyeEkle('ASELS', 65.20)">Ekle</td></tr>
-                <tr><td>THYAO</td><td>310.50</td><td class="down">-0.5%</td><td class="add-btn" onclick="portfoyeEkle('THYAO', 310.50)">Ekle</td></tr>
+                <tr><td>ASELS</td><td id="fiyat-asels">65.20</td><td class="up">+1.2%</td><td><button onclick="portfoyeEkle('ASELS', 65.20)">Ekle</button></td></tr>
+                <tr><td>THYAO</td><td id="fiyat-thyao">310.50</td><td class="down">-0.5%</td><td><button onclick="portfoyeEkle('THYAO', 310.50)">Ekle</button></td></tr>
             </tbody>
         </table>
     </div>
 
+    <div class="sag-panel">
+        <h3>Piyasa Verileri</h3>
+        <p>Gram Altın: <span id="altin">2450.00</span> TL</p>
+        <p>Bitcoin: <span id="btc">95000.00</span> USD</p>
+    </div>
+
     <script>
+        // Canlı Veri Simülasyonu: Fiyatları her 3 saniyede bir ufak oynatıyoruz
+        setInterval(() => {
+            let yeniAsels = (65.20 + (Math.random() - 0.5)).toFixed(2);
+            document.getElementById('fiyat-asels').innerText = yeniAsels;
+            document.getElementById('altin').innerText = (2450 + (Math.random() * 10)).toFixed(2);
+            document.getElementById('btc').innerText = (95000 + (Math.random() * 100)).toFixed(0);
+        }, 3000);
+
         function portfoyeEkle(hisse, fiyat) {
             let lot = prompt(hisse + " için lot sayısını gir:");
             let maliyet = prompt("Maliyet fiyatını gir:");
-            if(lot && maliyet) {
-                alert(hisse + " portföye eklendi! (Yakında anlık hesaplama aktif olacak)");
-                // Buraya localstorage ile kayıt fonksiyonları gelecek
+            if (lot && maliyet) {
+                let karZarar = (fiyat - maliyet) * lot;
+                document.getElementById("portfoy-ozet").innerText = 
+                    hisse + " için Güncel Kâr/Zarar: " + karZarar.toFixed(2) + " TL";
             }
         }
     </script>
