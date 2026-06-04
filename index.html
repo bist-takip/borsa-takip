@@ -7,57 +7,65 @@
         .sag-panel { flex: 1; background: #f4f4f4; padding: 20px; border-radius: 10px; }
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .kar { color: green; font-weight: bold; }
+        .zarar { color: red; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="sol-panel">
         <h1>Borsa Canlı Takip</h1>
+        <div id="portfoy-ozet" style="margin-bottom: 15px; font-weight: bold;">Portföyünüzü oluşturmak için 'Ekle'ye tıklayın.</div>
         <table id="borsa-tablo">
             <thead>
                 <tr><th>Hisse</th><th>Fiyat</th><th>İşlem</th></tr>
             </thead>
-            <tbody id="tablo-govde">
-                </tbody>
+            <tbody id="tablo-govde"></tbody>
         </table>
     </div>
 
     <div class="sag-panel">
         <h3>Piyasa Verileri</h3>
-        <p>Gram Altın: <span id="altin">Yükleniyor...</span></p>
+        <p>Gram Altın: <span id="altin">2458.08</span> TL</p>
     </div>
 
     <script>
-        // Hisseler ve Sembolleri
         let hisseler = [
-            { sembol: "ASELS", fiyat: 0 },
-            { sembol: "THYAO", fiyat: 0 },
-            { sembol: "GARAN", fiyat: 0 },
-            { sembol: "BIMAS", fiyat: 0 }
+            { sembol: "ASELS", fiyat: 52.65 },
+            { sembol: "BIMAS", fiyat: 147.40 },
+            { sembol: "GARAN", fiyat: 95.73 },
+            { sembol: "THYAO", fiyat: 63.94 }
         ];
 
-        // 1. ADIM: Alfabetik Sıralama
         hisseler.sort((a, b) => a.sembol.localeCompare(b.sembol));
 
-        // 2. ADIM: Tabloya Yazdırma
         function tabloyuGuncelle() {
             let govde = document.getElementById("tablo-govde");
             govde.innerHTML = "";
             hisseler.forEach(h => {
-                govde.innerHTML += `<tr><td>${h.sembol}</td><td>${h.fiyat}</td><td><button>Ekle</button></td></tr>`;
+                govde.innerHTML += `<tr>
+                    <td>${h.sembol}</td>
+                    <td>${h.fiyat.toFixed(2)}</td>
+                    <td><button onclick="portfoyeEkle('${h.sembol}', ${h.fiyat})">Ekle</button></td>
+                </tr>`;
             });
         }
 
-        // 3. ADIM: Canlı Veri Simülasyonu (Gerçek API bağlamak için burayı güncelleyeceğiz)
-        function veriCek() {
-            hisseler.forEach(h => {
-                h.fiyat = (Math.random() * 100 + 50).toFixed(2);
-            });
-            tabloyuGuncelle();
+        function portfoyeEkle(sembol, guncelFiyat) {
+            let lot = prompt(sembol + " için kaç lot aldın?");
+            let maliyet = prompt("Maliyet fiyatın neydi?");
+            
+            if (lot && maliyet) {
+                let karZarar = (guncelFiyat - parseFloat(maliyet)) * parseInt(lot);
+                let durum = karZarar >= 0 ? "Kâr" : "Zarar";
+                let sinif = karZarar >= 0 ? "kar" : "zarar";
+                
+                document.getElementById("portfoy-ozet").innerHTML = 
+                    `Son eklenen: ${sembol} | Durum: <span class="${sinif}">${durum} (${karZarar.toFixed(2)} TL)</span>`;
+            }
         }
 
-        setInterval(veriCek, 3000);
-        veriCek();
+        tabloyuGuncelle();
     </script>
 </body>
 </html>
