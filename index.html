@@ -1,155 +1,45 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Borsa ve Portföy Takip</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f9;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        h1, h2 {
-            text-align: center;
-            color: #1a365d;
-        }
-        .market-summary {
-            display: flex;
-            justify-content: space-around;
-            background: #e2e8f0;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        .market-item {
-            text-align: center;
-        }
-        .up { color: #2f855a; }
-        .down { color: #c53030; }
-        .form-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        input, select, button {
-            padding: 10px;
-            border: 1px solid #cbd5e0;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-        input { flex: 1; }
-        button {
-            background-color: #3182ce;
-            color: white;
-            cursor: pointer;
-            border: none;
-        }
-        button:hover { background-color: #2b6cb0; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        th { background-color: #f7fafc; color: #4a5568; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f6f9; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        .up { color: green; font-weight: bold; }
+        .down { color: red; font-weight: bold; }
+        .add-btn { cursor: pointer; color: blue; text-decoration: underline; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h1>Finansal Portföy Merkezim</h1>
-    
-    <!-- Değerli Madenler Köşesi -->
-    <div class="market-summary">
-        <div class="market-item">
-            <div>Gram Altın</div>
-            <div class="up">2.450 TL (+%0.45)</div>
+    <div class="container">
+        <h1>Borsa Canlı Takip</h1>
+        <div id="portfoy-ozeti" style="padding:10px; background:#e8f4fd; border-radius:8px; margin-bottom:15px;">
+            Toplam Kar/Zarar: Henüz hisse eklenmedi.
         </div>
-        <div class="market-item">
-            <div>Çeyrek Altın</div>
-            <div class="up">4.010 TL (+%0.32)</div>
-        </div>
-        <div class="market-item">
-            <div>Dolar/TL</div>
-            <div class="down">32.45 TL (-%0.12)</div>
-        </div>
+        <table>
+            <thead>
+                <tr><th>Hisse</th><th>Fiyat</th><th>Değişim (%)</th><th>İşlem</th></tr>
+            </thead>
+            <tbody id="borsa-tablo">
+                <!-- Burası canlı gelecek -->
+                <tr><td>ASELS</td><td>65.20</td><td class="up">+1.2%</td><td class="add-btn" onclick="portfoyeEkle('ASELS', 65.20)">Ekle</td></tr>
+                <tr><td>THYAO</td><td>310.50</td><td class="down">-0.5%</td><td class="add-btn" onclick="portfoyeEkle('THYAO', 310.50)">Ekle</td></tr>
+            </tbody>
+        </table>
     </div>
 
-    <h2>Hisse Ekle</h2>
-    <div class="form-group">
-        <input type="text" id="hisseAdi" placeholder="Hisse Adı (Örn: THYAO)" oninput="this.value = this.value.toUpperCase()">
-        <input type="number" id="hisseLot" placeholder="Lot Adedi">
-        <input type="number" id="hisseMaliyet" placeholder="Maliyet">
-        <button onclick="hisseEkle()">Ekle</button>
-    </div>
-
-    <h2>Portföyüm</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Hisse</th>
-                <th>Lot</th>
-                <th>Maliyet</th>
-                <th>Güncel Fiyat</th>
-                <th>Kar/Zarar</th>
-            </tr>
-        </thead>
-        <tbody id="portfoyListesi">
-            <!-- Eklenen hisseler buraya gelecek -->
-        </tbody>
-    </table>
-</div>
-
-<script>
-    function hisseEkle() {
-        const ad = document.getElementById('hisseAdi').value;
-        const lot = document.getElementById('hisseLot').value;
-        const maliyet = document.getElementById('hisseMaliyet').value;
-
-        if(!ad || !lot || !maliyet) {
-            alert('Lütfen tüm alanları doldurun!');
-            return;
+    <script>
+        function portfoyeEkle(hisse, fiyat) {
+            let lot = prompt(hisse + " için lot sayısını gir:");
+            let maliyet = prompt("Maliyet fiyatını gir:");
+            if(lot && maliyet) {
+                alert(hisse + " portföye eklendi! (Yakında anlık hesaplama aktif olacak)");
+                // Buraya localstorage ile kayıt fonksiyonları gelecek
+            }
         }
-
-        // Şimdilik yapay bir güncel fiyat belirliyoruz (Maliyetin biraz üstü olsun)
-        const guncelFiyat = (parseFloat(maliyet) * 1.05).toFixed(2);
-        const karZarar = ((guncelFiyat - maliyet) * lot).toFixed(2);
-
-        const tablo = document.getElementById('portfoyListesi');
-        const yeniSatir = `
-            <tr>
-                <td><strong>${ad}</strong></td>
-                <td>${lot}</td>
-                <td>${maliyet} TL</td>
-                <td>${guncelFiyat} TL</td>
-                <td class="up">+${karZarar} TL</td>
-            </tr>
-        `;
-        
-        tablo.innerHTML += yeniSatir;
-
-        // Formu temizle
-        document.getElementById('hisseAdi').value = '';
-        document.getElementById('hisseLot').value = '';
-        document.getElementById('hisseMaliyet').value = '';
-    }
-</script>
-
+    </script>
 </body>
 </html>
