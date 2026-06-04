@@ -3,76 +3,40 @@
 <head>
     <style>
         body { font-family: sans-serif; padding: 20px; }
-        .tablo-container { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .ara-kutusu { margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
     </style>
 </head>
 <body>
 
-    <h1>BİST Canlı Takip</h1>
-    <div id="portfoy-alani"></div>
-    
-    <div class="tablo-container">
-        <table>
-            <thead><tr><th>Hisse</th><th>Fiyat</th><th>İşlem</th></tr></thead>
-            <tbody id="tablo-govde"></tbody>
-        </table>
-    </div>
+    <h1>BİST Hisse Listesi</h1>
+    <input type="text" id="ara" placeholder="Hisse ara (Örn: THYAO)..." onkeyup="filtrele()">
+
+    <table>
+        <thead><tr><th>Hisse</th><th>İşlem</th></tr></thead>
+        <tbody id="tablo-govde"></tbody>
+    </table>
 
     <script>
-        const hisseler = ["ASELS", "THYAO", "GARAN", "BIMAS", "EREGL", "TUPRS"];
+        // BIST hisselerinin bir kısmı (Hepsini listelemek yerine arama özelliği ekledik)
+        const bistHisseleri = ["ASELS", "THYAO", "GARAN", "BIMAS", "EREGL", "TUPRS", "SISE", "AKBNK", "PETKM", "KCHOL", "SAHOL"];
 
-        // 1. Tabloyu oluştur
-        let govde = document.getElementById("tablo-govde");
-        hisseler.forEach(h => {
-            govde.innerHTML += `<tr><td>${h}</td><td id="fiyat-${h}">--</td>
-            <td><button onclick="portfoyeEkle('${h}')">Ekle</button></td></tr>`;
-        });
-
-        // 2. Portföy ekleme ve kaydetme
-        function portfoyeEkle(hisse) {
-            let lot = prompt("Kaç lot " + hisse + " var?");
-            let maliyet = prompt("Maliyetin nedir?");
-            if (lot && maliyet) {
-                let veri = { hisse, lot, maliyet };
-                localStorage.setItem("portfoy_" + hisse, JSON.stringify(veri));
-                alert(hisse + " portföye kaydedildi!");
-                portfoyGoster();
-            }
-        }
-
-        // 3. Kayıtlı verileri göster
-        function portfoyGoster() {
-            let alan = document.getElementById("portfoy-alani");
-            alan.innerHTML = "<h3>Portföyün:</h3>";
-            hisseler.forEach(h => {
-                let kayit = localStorage.getItem("portfoy_" + h);
-                if (kayit) {
-                    let v = JSON.parse(kayit);
-                    alan.innerHTML += `<p>${v.hisse}: ${v.lot} Lot (Maliyet: ${v.maliyet} TL)</p>`;
-                }
+        function tabloyuDoldur(liste) {
+            let govde = document.getElementById("tablo-govde");
+            govde.innerHTML = "";
+            liste.forEach(h => {
+                govde.innerHTML += `<tr><td>${h}</td><td><button onclick="ekle('${h}')">Ekle</button></td></tr>`;
             });
         }
 
-        // 4. Pazartesi borsa açılınca otomatik çalışacak veri çekme motoru
-        async function veriGetir() {
-            for (let hisse of hisseler) {
-                try {
-                    let url = `https://corsproxy.io/?https://query1.finance.yahoo.com/v8/finance/chart/${hisse}.IS`;
-                    let res = await fetch(url);
-                    let data = await res.json();
-                    let fiyat = data.chart.result[0].meta.regularMarketPrice;
-                    document.getElementById(`fiyat-${hisse}`).innerText = fiyat.toFixed(2);
-                } catch (e) {
-                    console.log("Borsa kapalı veya veri gelmiyor.");
-                }
-            }
+        function filtrele() {
+            let aranan = document.getElementById("ara").value.toUpperCase();
+            let filtrelenmis = bistHisseleri.filter(h => h.includes(aranan));
+            tabloyuDoldur(filtrelenmis);
         }
 
-        setInterval(veriGetir, 60000);
-        veriGetir();
-        portfoyGoster();
+        tabloyuDoldur(bistHisseleri);
     </script>
 </body>
 </html>
