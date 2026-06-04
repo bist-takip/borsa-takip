@@ -7,65 +7,51 @@
         .sag-panel { flex: 1; background: #f4f4f4; padding: 20px; border-radius: 10px; }
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        .kar { color: green; font-weight: bold; }
-        .zarar { color: red; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="sol-panel">
         <h1>Borsa Canlı Takip</h1>
-        <div id="portfoy-ozet" style="margin-bottom: 15px; font-weight: bold;">Portföyünüzü oluşturmak için 'Ekle'ye tıklayın.</div>
         <table id="borsa-tablo">
-            <thead>
-                <tr><th>Hisse</th><th>Fiyat</th><th>İşlem</th></tr>
-            </thead>
+            <thead><tr><th>Hisse</th><th>Fiyat (TL)</th><th>İşlem</th></tr></thead>
             <tbody id="tablo-govde"></tbody>
         </table>
     </div>
 
     <div class="sag-panel">
         <h3>Piyasa Verileri</h3>
-        <p>Gram Altın: <span id="altin">2458.08</span> TL</p>
+        <p>Altın: <span id="altin">Yükleniyor...</span></p>
     </div>
 
     <script>
-        let hisseler = [
-            { sembol: "ASELS", fiyat: 52.65 },
-            { sembol: "BIMAS", fiyat: 147.40 },
-            { sembol: "GARAN", fiyat: 95.73 },
-            { sembol: "THYAO", fiyat: 63.94 }
-        ];
+        // Hisselerin Yahoo Finance sembolleri (BIST için .IS eklenir)
+        let semboller = ["ASELS.IS", "THYAO.IS", "GARAN.IS", "BIMAS.IS"];
 
-        hisseler.sort((a, b) => a.sembol.localeCompare(b.sembol));
-
-        function tabloyuGuncelle() {
-            let govde = document.getElementById("tablo-govde");
-            govde.innerHTML = "";
-            hisseler.forEach(h => {
-                govde.innerHTML += `<tr>
-                    <td>${h.sembol}</td>
-                    <td>${h.fiyat.toFixed(2)}</td>
-                    <td><button onclick="portfoyeEkle('${h.sembol}', ${h.fiyat})">Ekle</button></td>
-                </tr>`;
-            });
-        }
-
-        function portfoyeEkle(sembol, guncelFiyat) {
-            let lot = prompt(sembol + " için kaç lot aldın?");
-            let maliyet = prompt("Maliyet fiyatın neydi?");
-            
-            if (lot && maliyet) {
-                let karZarar = (guncelFiyat - parseFloat(maliyet)) * parseInt(lot);
-                let durum = karZarar >= 0 ? "Kâr" : "Zarar";
-                let sinif = karZarar >= 0 ? "kar" : "zarar";
-                
-                document.getElementById("portfoy-ozet").innerHTML = 
-                    `Son eklenen: ${sembol} | Durum: <span class="${sinif}">${durum} (${karZarar.toFixed(2)} TL)</span>`;
+        async function veriCek() {
+            // Ücretsiz bir finans verisi proxy servisi kullanıyoruz
+            for (let sembol of semboller) {
+                try {
+                    let response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${sembol}`);
+                    let data = await response.json();
+                    let fiyat = data.chart.result[0].meta.regularMarketPrice;
+                    
+                    document.getElementById(`fiyat-${sembol}`).innerText = fiyat.toFixed(2);
+                } catch (e) {
+                    console.log("Veri çekilemedi, bir sonraki güncelleme bekleniyor.");
+                }
             }
         }
 
-        tabloyuGuncelle();
+        // Tabloyu ilk kez oluştur
+        let govde = document.getElementById("tablo-govde");
+        semboller.forEach(s => {
+            govde.innerHTML += `<tr><td>${s.replace('.IS', '')}</td><td id="fiyat-${s}">--</td><td><button>Ekle</button></td></tr>`;
+        });
+
+        // Verileri her 1 dakikada bir güncelle
+        setInterval(veriCek, 60000);
+        veriCek();
     </script>
 </body>
 </html>
