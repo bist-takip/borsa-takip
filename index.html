@@ -2,42 +2,77 @@
 <html>
 <head>
     <style>
-        body { font-family: sans-serif; display: flex; gap: 20px; padding: 20px; }
-        .panel { flex: 1; background: #f9f9f9; padding: 20px; border-radius: 10px; border: 1px solid #ddd; }
+        body { font-family: sans-serif; padding: 20px; }
+        .tablo-container { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
     </style>
 </head>
 <body>
 
-    <div class="panel">
-        <h1>Kripto Canlı Takip</h1>
+    <h1>BİST Canlı Takip</h1>
+    <div id="portfoy-alani"></div>
+    
+    <div class="tablo-container">
         <table>
-            <thead><tr><th>Coin</th><th>Fiyat (USD)</th></tr></thead>
-            <tbody id="kripto-tablo">
-                <tr id="BTC"><td>Bitcoin (BTC)</td><td class="fiyat">Yükleniyor...</td></tr>
-                <tr id="ETH"><td>Ethereum (ETH)</td><td class="fiyat">Yükleniyor...</td></tr>
-            </tbody>
+            <thead><tr><th>Hisse</th><th>Fiyat</th><th>İşlem</th></tr></thead>
+            <tbody id="tablo-govde"></tbody>
         </table>
     </div>
 
     <script>
-        // Binance'in herkese açık canlı veri kaynağı
-        async function kriptoVeriCek() {
-            try {
-                let res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=["BTCUSDT","ETHUSDT"]');
-                let veriler = await res.json();
-                
-                document.querySelector('#BTC .fiyat').innerText = parseFloat(veriler[0].price).toFixed(2);
-                document.querySelector('#ETH .fiyat').innerText = parseFloat(veriler[1].price).toFixed(2);
-            } catch (e) {
-                console.log("Veri çekilemedi.");
+        const hisseler = ["ASELS", "THYAO", "GARAN", "BIMAS", "EREGL", "TUPRS"];
+
+        // 1. Tabloyu oluştur
+        let govde = document.getElementById("tablo-govde");
+        hisseler.forEach(h => {
+            govde.innerHTML += `<tr><td>${h}</td><td id="fiyat-${h}">--</td>
+            <td><button onclick="portfoyeEkle('${h}')">Ekle</button></td></tr>`;
+        });
+
+        // 2. Portföy ekleme ve kaydetme
+        function portfoyeEkle(hisse) {
+            let lot = prompt("Kaç lot " + hisse + " var?");
+            let maliyet = prompt("Maliyetin nedir?");
+            if (lot && maliyet) {
+                let veri = { hisse, lot, maliyet };
+                localStorage.setItem("portfoy_" + hisse, JSON.stringify(veri));
+                alert(hisse + " portföye kaydedildi!");
+                portfoyGoster();
             }
         }
 
-        // Her 2 saniyede bir güncelle
-        setInterval(kriptoVeriCek, 2000);
-        kriptoVeriCek();
+        // 3. Kayıtlı verileri göster
+        function portfoyGoster() {
+            let alan = document.getElementById("portfoy-alani");
+            alan.innerHTML = "<h3>Portföyün:</h3>";
+            hisseler.forEach(h => {
+                let kayit = localStorage.getItem("portfoy_" + h);
+                if (kayit) {
+                    let v = JSON.parse(kayit);
+                    alan.innerHTML += `<p>${v.hisse}: ${v.lot} Lot (Maliyet: ${v.maliyet} TL)</p>`;
+                }
+            });
+        }
+
+        // 4. Pazartesi borsa açılınca otomatik çalışacak veri çekme motoru
+        async function veriGetir() {
+            for (let hisse of hisseler) {
+                try {
+                    let url = `https://corsproxy.io/?https://query1.finance.yahoo.com/v8/finance/chart/${hisse}.IS`;
+                    let res = await fetch(url);
+                    let data = await res.json();
+                    let fiyat = data.chart.result[0].meta.regularMarketPrice;
+                    document.getElementById(`fiyat-${hisse}`).innerText = fiyat.toFixed(2);
+                } catch (e) {
+                    console.log("Borsa kapalı veya veri gelmiyor.");
+                }
+            }
+        }
+
+        setInterval(veriGetir, 60000);
+        veriGetir();
+        portfoyGoster();
     </script>
 </body>
 </html>
