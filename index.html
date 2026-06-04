@@ -2,41 +2,19 @@
 <html>
 <head>
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        .ara-kutusu { margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        body { margin: 0; padding: 0; font-family: sans-serif; }
+        .ust-kisim { padding: 20px; background: #333; color: white; text-align: center; }
+        .bist-penceresi { width: 100%; height: 800px; border: none; }
     </style>
 </head>
 <body>
 
-    <h1>BİST Hisse Listesi</h1>
-    <input type="text" id="ara" placeholder="Hisse ara (Örn: THYAO)..." onkeyup="filtrele()">
+    <div class="ust-kisim">
+        <h1>BİST Canlı Piyasa Ekranı</h1>
+        <p>Borsa açıldığında tüm hisseleri buradan anlık takip edebilirsin.</p>
+    </div>
 
-    <table>
-        <thead><tr><th>Hisse</th><th>İşlem</th></tr></thead>
-        <tbody id="tablo-govde"></tbody>
-    </table>
+    <iframe class="bist-penceresi" src="https://tr.tradingview.com/markets/stocks-turkey/market-movers-large-cap/"></iframe>
 
-    <script>
-        // BIST hisselerinin bir kısmı (Hepsini listelemek yerine arama özelliği ekledik)
-        const bistHisseleri = ["ASELS", "THYAO", "GARAN", "BIMAS", "EREGL", "TUPRS", "SISE", "AKBNK", "PETKM", "KCHOL", "SAHOL"];
-
-        function tabloyuDoldur(liste) {
-            let govde = document.getElementById("tablo-govde");
-            govde.innerHTML = "";
-            liste.forEach(h => {
-                govde.innerHTML += `<tr><td>${h}</td><td><button onclick="ekle('${h}')">Ekle</button></td></tr>`;
-            });
-        }
-
-        function filtrele() {
-            let aranan = document.getElementById("ara").value.toUpperCase();
-            let filtrelenmis = bistHisseleri.filter(h => h.includes(aranan));
-            tabloyuDoldur(filtrelenmis);
-        }
-
-        tabloyuDoldur(bistHisseleri);
-    </script>
 </body>
 </html>
